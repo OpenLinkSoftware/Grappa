@@ -5,8 +5,7 @@ import { Client } from 'graphql-ld';
 import { QueryEngineSparqlEndpoint } from 'graphql-ld-sparqlendpoint';
 
 import JSONTree from 'react-json-tree'
-
-// Control ReactJson (npm react-json-view) provides a possible alternative to JSONTree
+// ReactJson (npm react-json-view) provides a possible alternative control to JSONTree
 
 const defaultContext = `
 {
@@ -116,41 +115,37 @@ export function GraphQlLdControl(props) {
     <>
       <Form>
         <Form.Group>
-          <Form.Label style={{ color: 'white' }}>SPARQL Endpoint:</Form.Label>
-          <Form.Control value={endpoint} onChange={endpointChangeHandler}
-            style={{ backgroundColor: "#002b36", color: "#657b83", borderColor: "gray", clear: "both", marginBottom: "10px" }} />
+          <Form.Label>SPARQL Endpoint:</Form.Label>
+          <Form.Control className="inputCntrl1" value={endpoint} onChange={endpointChangeHandler} />
         </Form.Group>
         <div style={{ display: "flex" }}>
           <Form.Group style={{ flex: "1" }}>
-            <Form.Label style={{ color: 'white' }}>GraphQL:</Form.Label>
-            <Form.Control as="textarea" rows={10} value={query} onChange={queryChangeHandler}
-              style={{
-                backgroundColor: "#002b36", color: "#657b83", borderColor: "gray", height: "200px", clear: "both",
-                marginBottom: "10px", resize: "none", overflowY: "scroll"
-              }} />
+            <Form.Label>GraphQL:</Form.Label>
+            <Form.Control className="inputCntrl1 inputTextArea" as="textarea" rows={10}
+              value={query} onChange={queryChangeHandler}
+            />
           </Form.Group>
           <div>&nbsp;</div>
           <Form.Group style={{ flex: "1" }}>
-            <Form.Label style={{ color: 'white' }}>Context:</Form.Label>
-            <Form.Control as="textarea" rows={10} value={context} onChange={contextChangeHandler}
-              style={{
-                backgroundColor: "#002b36", color: "#657b83", borderColor: "gray", height: "200px", clear: "both",
-                marginBottom: "10px", resize: "none", overflowY: "scroll"
-              }} />
+            <Form.Label>Context:</Form.Label>
+            <Form.Control className="inputCntrl1 inputTextArea" as="textarea" rows={10}
+              value={context} onChange={contextChangeHandler}
+            />
           </Form.Group>
         </div>
         <Button onClick={() => execQuery()}>Execute</Button> &nbsp;
-      <Button onClick={() => clearQueryResult()}>Clear</Button> &nbsp;
-      <Button onClick={() => resetDefaults()}>Reset</Button>
+        <Button onClick={() => clearQueryResult()}>Clear</Button> &nbsp;
+        <Button onClick={() => resetDefaults()}>Reset</Button>
         <Form.Group>
-          <Form.Label style={{ color: 'white' }}>Query result:</Form.Label>
-          <div style={{ border: "1px solid gray", borderRadius: "3px", minHeight: "150px", clear: "both", textAlign: "left", paddingLeft: "10px" }}>
+          <Form.Label>Query result:</Form.Label>
+          <div className="qryRsltContainer">
             {
-              queryResult ? <JSONTree data={queryResult} theme={{ scheme: 'marakesh' }} /> : <div style={{ height: "10px" }} />
+              queryResult ?
+                <JSONTree data={queryResult} theme={{ scheme: 'marakesh' }} /> :
+                <div className="errorTxtContainer" />
             }
-
             {
-              status ? <p style={{ color: "red" }}>{status}</p> : ''
+              status ? <p className="errorTxt">{status}</p> : ''
             }
           </div>
         </Form.Group>

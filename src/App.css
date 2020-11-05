@@ -1,46 +1,60 @@
-.App {
-  text-align: center;
+
+.navbar {
   background-color: #002b36;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.navbarBrand {
+  color: #677a97 !important;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.appContainer {
+  text-align: center;
+  background-color: #002b36;
+  margin-top: 30px;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  border-radius: 10px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.inputCntrl1 {
+  color: #657b83 !important;
+  background-color: #002b36 !important;
+  border-color: gray !important;
+  clear: both;
+  margin-bottom: 10px;
 }
 
-.App-link {
-  color: #61dafb;
+.inputTextArea {
+  resize: none; 
+  overflow-y: scroll;
+  height: 200px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.errorTxtContainer {
+  height: 10px;
+}
+
+.errorTxt {
+  color: red;
+}
+
+.qryRsltContainer {
+  border: 1px solid gray;
+  border-radius: 3px;
+  min-height: 150px;
+  clear: both;
+  text-align: left;
+  padding-left: 10px; 
+}
+
+.btn:focus,.btn:active {
+  box-shadow: none !important ;
 }
 
 .form-label {
   float: left !important;
   text-align: left !important;
+  color: white;
 }
 
 .form-control:focus {

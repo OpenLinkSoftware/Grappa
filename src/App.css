@@ -1,15 +1,24 @@
 
+:root {
+  --backgroundColor: #002b36;
+  --navbarTextColor: #677a97;
+  --inputCtlTextColor: #657b83;
+  --borderColor: gray;
+  --labelColor: white;
+  --errorTextColor: red;
+}
+
 .navbar {
-  background-color: #002b36;
+  background-color: var(--backgroundColor);
 }
 
 .navbarBrand {
-  color: #677a97 !important;
+  color: var(--navbarTextColor) !important;
 }
 
 .appContainer {
   text-align: center;
-  background-color: #002b36;
+  background-color: var(--backgroundColor);
   margin-top: 30px;
   padding-top: 30px;
   padding-bottom: 30px;
@@ -17,9 +26,9 @@
 }
 
 .inputCntrl1 {
-  color: #657b83 !important;
-  background-color: #002b36 !important;
-  border-color: gray !important;
+  color: var(--inputCtlTextColor) !important;
+  background-color: var(--backgroundColor) !important;
+  border-color: var(--borderColor) !important;
   clear: both;
   margin-bottom: 10px;
 }
@@ -35,11 +44,11 @@
 }
 
 .errorTxt {
-  color: red;
+  color: var(--errorTextColor);
 }
 
 .qryRsltContainer {
-  border: 1px solid gray;
+  border: 1px solid var(--borderColor);
   border-radius: 3px;
   min-height: 150px;
   clear: both;
@@ -54,7 +63,7 @@
 .form-label {
   float: left !important;
   text-align: left !important;
-  color: white;
+  color: var(--labelColor);
 }
 
 .form-control:focus {

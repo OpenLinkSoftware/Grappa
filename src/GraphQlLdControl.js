@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Form } from 'react-bootstrap'
+import { Button, Form, Row, Col } from 'react-bootstrap'
 
 import { Client } from 'graphql-ld';
 import { QueryEngineSparqlEndpoint } from 'graphql-ld-sparqlendpoint';
@@ -30,6 +30,13 @@ const defaultQuery = `
 }
 `.trim();
 
+const outputFormats = [
+  { label: "Tree", value: "TREE" },
+  { label: "JSON (Compact)", value: "JSON_COMPACT" },
+  { label: "JSON (Formatted)", value: "JSON_FORMATTED" },
+];
+const defaultOutputFormat = "TREE"
+
 // ------------------------------------------------------------------
 
 export function GraphQlLdControl(props) {
@@ -39,6 +46,7 @@ export function GraphQlLdControl(props) {
   const [status, setStatus] = useState(null);
   const [context, setContext] = useState(defaultContext);
   const [endpoint, setEndpoint] = useState(defaultEndpoint);
+  const [outputFormat, setOutputFormat] = useState(defaultOutputFormat);
 
   const execQuery = async () => {
     let contextObj;
@@ -97,6 +105,10 @@ export function GraphQlLdControl(props) {
     setEndpoint(event.target.value);
   }
 
+  const outputFormatChangeHandler = (event) => {
+    setOutputFormat(event.target.value);
+  }
+
   const clearQueryResult = () => {
     setQueryResult(null);
     setStatus(null);
@@ -109,7 +121,27 @@ export function GraphQlLdControl(props) {
     setQuery(defaultQuery);
     setEndpoint(defaultEndpoint);
     setContext(defaultContext);
+    setOutputFormat(defaultOutputFormat);
   }
+
+  const renderedQueryResult = (format) => {
+    let res;
+    switch (format) {
+      case "TREE":
+        res = <JSONTree data={queryResult} theme={{ scheme: 'marakesh' }} />;
+        break;
+      case "JSON_COMPACT":
+        res = <p className="qryRsltJsonText">{JSON.stringify(queryResult)}</p>;
+        break;
+      case "JSON_FORMATTED":
+      default:
+        res = <pre className="qryRsltJsonText">{JSON.stringify(queryResult, null, 2)}</pre>;
+        break;
+    }
+
+    return res;
+  }
+
 
   return (
     <>
@@ -136,12 +168,30 @@ export function GraphQlLdControl(props) {
         <Button onClick={() => execQuery()}>Execute</Button> &nbsp;
         <Button onClick={() => clearQueryResult()}>Clear</Button> &nbsp;
         <Button onClick={() => resetDefaults()}>Reset</Button>
+        <Row style={{ marginBottom: "5px" }}>
+          <Col>
+            <Form.Group>
+              <Form.Label style={{ position: "relative", top: "5px" }}>Query result:</Form.Label>
+            </Form.Group>
+          </Col>
+          <Col>
+            <Form inline>
+              <Form.Group className="d-flex justify-content-end" style={{ width: "100%" }}>
+                <Form.Label style={{ paddingRight: "10px" }}>Output format:</Form.Label>
+                <Form.Control as="select" value={outputFormat} onChange={outputFormatChangeHandler} style={{ fontSize: "90%" }}>
+                  {outputFormats.map((format) => (
+                    <option value={format.value}>{format.label}</option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+            </Form>
+          </Col>
+        </Row>
         <Form.Group>
-          <Form.Label>Query result:</Form.Label>
           <div className="qryRsltContainer">
             {
               queryResult ?
-                <JSONTree data={queryResult} theme={{ scheme: 'marakesh' }} /> :
+                renderedQueryResult(outputFormat) :
                 <div className="errorTxtContainer" />
             }
             {

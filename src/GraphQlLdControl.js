@@ -142,6 +142,23 @@ export function GraphQlLdControl(props) {
     return res;
   }
 
+  const queryResultMetaData = () => {
+    if (queryResult) {
+      let contextObj = context.trim() ? JSON.parse(context) : null;
+      let metadata = contextObj ? contextObj : {};
+
+      metadata.queryResult = queryResult;
+
+      return (
+        <script type="application/ld+json">
+          {JSON.stringify(metadata)}
+        </script>
+      );
+    }
+    else {
+      return null;
+    }
+  }
 
   return (
     <>
@@ -200,6 +217,7 @@ export function GraphQlLdControl(props) {
           </div>
         </Form.Group>
       </Form>
+      {queryResultMetaData()}
     </>
   );
 }

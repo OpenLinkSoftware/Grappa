@@ -42,7 +42,7 @@ function App() {
       <Container className="appContainer" >
         <Row>
           <Col>
-            <GraphQlLdControl />
+            <GraphQlLdControl pageUrl={document.URL} />
           </Col>
         </Row>
       </Container>

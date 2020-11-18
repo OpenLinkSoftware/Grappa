@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Form, Row, Col } from 'react-bootstrap'
 
 import { Client } from 'graphql-ld';
@@ -31,22 +31,24 @@ const defaultQuery = `
 `.trim();
 
 const outputFormats = [
-  { label: "Tree", value: "TREE" },
-  { label: "JSON (Compact)", value: "JSON_COMPACT" },
-  { label: "JSON (Formatted)", value: "JSON_FORMATTED" },
+  { label: "Tree", value: "fmt_tree" },
+  { label: "JSON (Compact)", value: "fmt_json" },
+  { label: "JSON (Formatted)", value: "fmt_json_formatted" },
 ];
-const defaultOutputFormat = "TREE"
+const defaultOutputFormat = "fmt_tree"
 
 // ------------------------------------------------------------------
 
 export function GraphQlLdControl(props) {
 
+  const { qsEndpoint, qsQuery, qsContext, qsOutputFormat  } = getQueryStringParams(props.pageUrl);
+
   const [queryResult, setQueryResult] = useState(null);
-  const [query, setQuery] = useState(defaultQuery);
+  const [query, setQuery] = useState(qsQuery ? qsQuery : defaultQuery);
   const [status, setStatus] = useState(null);
-  const [context, setContext] = useState(defaultContext);
-  const [endpoint, setEndpoint] = useState(defaultEndpoint);
-  const [outputFormat, setOutputFormat] = useState(defaultOutputFormat);
+  const [context, setContext] = useState(qsContext ? qsContext : defaultContext);
+  const [endpoint, setEndpoint] = useState(qsEndpoint ? qsEndpoint : defaultEndpoint);
+  const [outputFormat, setOutputFormat] = useState(qsOutputFormat ? qsOutputFormat : defaultOutputFormat);
 
   const execQuery = async () => {
     let contextObj;
@@ -122,18 +124,20 @@ export function GraphQlLdControl(props) {
     setEndpoint(defaultEndpoint);
     setContext(defaultContext);
     setOutputFormat(defaultOutputFormat);
+
+    window.history.pushState({}, document.title, new URL(props.pageUrl).pathname);
   }
 
   const renderedQueryResult = (format) => {
     let res;
     switch (format) {
-      case "TREE":
+      case "fmt_tree":
         res = <JSONTree data={queryResult} theme={{ scheme: 'marakesh' }} />;
         break;
-      case "JSON_COMPACT":
+      case "fmt_json":
         res = <p className="qryRsltJsonText">{JSON.stringify(queryResult)}</p>;
         break;
-      case "JSON_FORMATTED":
+      case "fmt_json_formatted":
       default:
         res = <pre className="qryRsltJsonText">{JSON.stringify(queryResult, null, 2)}</pre>;
         break;
@@ -160,6 +164,30 @@ export function GraphQlLdControl(props) {
     }
   }
 
+  function getQueryStringParams(pageUrl) {
+    try {
+      let params, qsEndpoint, qsQuery, qsContext, qsOutputFormat;
+
+      params = new URL(pageUrl).searchParams;
+      qsEndpoint = params.has('endpoint') ? decodeURIComponent(params.get('endpoint')).trim() : null;
+      qsQuery = params.has('query') ? decodeURIComponent(params.get('query')).trim() : null;
+      qsContext = params.has('context') ? decodeURIComponent(params.get('context')).trim() : null;
+      qsOutputFormat = params.has('format') ? decodeURIComponent(params.get('format')).trim() : null;
+      return { qsEndpoint, qsQuery, qsContext, qsOutputFormat };
+    }
+    catch (e) {
+      return {};
+    }
+  }
+
+  // If the page URL specifies a query then execute it on page load.
+  // Note: useEffect(..., []) is equivalent to componentDidMount
+  useEffect(() => {
+    if (qsEndpoint && qsQuery && qsContext && !queryResult)
+    execQuery();
+    // eslint-disable-next-line
+  }, []);
+
   return (
     <>
       <Form>
@@ -184,7 +212,7 @@ export function GraphQlLdControl(props) {
         </div>
         <Button onClick={() => execQuery()}>Execute</Button> &nbsp;
         <Button onClick={() => clearQueryResult()}>Clear</Button> &nbsp;
-        <Button onClick={() => resetDefaults()}>Reset</Button>
+        <Button onClick={() => resetDefaults()}>Defaults</Button>
         <Row style={{ marginBottom: "5px" }}>
           <Col>
             <Form.Group>
@@ -192,7 +220,7 @@ export function GraphQlLdControl(props) {
             </Form.Group>
           </Col>
           <Col>
-            <Form inline>
+            <div className="form-inline">
               <Form.Group className="d-flex justify-content-end" style={{ width: "100%" }}>
                 <Form.Label style={{ paddingRight: "10px" }}>Output format:</Form.Label>
                 <Form.Control as="select" value={outputFormat} onChange={outputFormatChangeHandler} style={{ fontSize: "90%" }}>
@@ -201,7 +229,7 @@ export function GraphQlLdControl(props) {
                   ))}
                 </Form.Control>
               </Form.Group>
-            </Form>
+            </div>
           </Col>
         </Row>
         <Form.Group>

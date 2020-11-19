@@ -35,7 +35,6 @@
 
 .inputTextArea {
   resize: none; 
-  overflow-y: scroll;
   height: 200px;
 }
 
@@ -54,6 +53,7 @@
   clear: both;
   text-align: left;
   padding-left: 10px; 
+  overflow-X: auto;
 }
 
 .qryRsltJsonText {

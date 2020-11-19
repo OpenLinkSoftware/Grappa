@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { Button, Form, Row, Col } from 'react-bootstrap'
 
 import { Client } from 'graphql-ld';
@@ -42,6 +42,7 @@ const defaultOutputFormat = "fmt_tree"
 export function GraphQlLdControl(props) {
 
   const { qsEndpoint, qsQuery, qsContext, qsOutputFormat  } = getQueryStringParams(props.pageUrl);
+  const pageUrl = new URL(props.pageUrl);
 
   const [queryResult, setQueryResult] = useState(null);
   const [query, setQuery] = useState(qsQuery ? qsQuery : defaultQuery);
@@ -49,10 +50,12 @@ export function GraphQlLdControl(props) {
   const [context, setContext] = useState(qsContext ? qsContext : defaultContext);
   const [endpoint, setEndpoint] = useState(qsEndpoint ? qsEndpoint : defaultEndpoint);
   const [outputFormat, setOutputFormat] = useState(qsOutputFormat ? qsOutputFormat : defaultOutputFormat);
+  const [queryPermalink, setQueryPermalink] = useState(props.pageUrl);
 
   const execQuery = async () => {
     let contextObj;
 
+    clearQueryResult();
     try {
       let parsedEndpointUrl = new URL(endpoint);
       if (!parsedEndpointUrl || parsedEndpointUrl.origin === 'null')
@@ -60,7 +63,7 @@ export function GraphQlLdControl(props) {
     }
     catch (ex) {
       setStatus('Invalid SPARQL endpoint URL: ' + ex.message);
-      return null;
+      return;
     }
 
     try {
@@ -71,7 +74,7 @@ export function GraphQlLdControl(props) {
     }
     catch (ex) {
       setStatus('Invalid context: ' + ex.toString());
-      return null;
+      return;
     }
 
     try {
@@ -80,30 +83,28 @@ export function GraphQlLdControl(props) {
       }
       const { data } = await client.query({ query });
       setQueryResult(data);
+      return;
     }
     catch (ex) {
       setStatus('Query execution failed: ' + ex.toString());
-      return null;
+      return;
     }
   }
 
   const queryChangeHandler = (event) => {
-    setQueryResult(null);
-    setStatus(null);
+    clearQueryResult();
     setQuery(event.target.value);
   }
 
   const contextChangeHandler = (event) => {
     client = null;
-    setQueryResult(null);
-    setStatus(null);
+    clearQueryResult();
     setContext(event.target.value);
   }
 
   const endpointChangeHandler = (event) => {
     client = null;
-    setQueryResult(null);
-    setStatus(null);
+    clearQueryResult();
     setEndpoint(event.target.value);
   }
 
@@ -118,14 +119,15 @@ export function GraphQlLdControl(props) {
 
   const resetDefaults = () => {
     client = null;
-    setQueryResult(null);
-    setStatus(null);
+    clearQueryResult();
     setQuery(defaultQuery);
     setEndpoint(defaultEndpoint);
     setContext(defaultContext);
     setOutputFormat(defaultOutputFormat);
 
-    window.history.pushState({}, document.title, new URL(props.pageUrl).pathname);
+    // Strip off any query string provided initially,
+    // i.e. any query permalink which was executed on page load
+    window.history.pushState({}, document.title, pageUrl.pathname); 
   }
 
   const renderedQueryResult = (format) => {
@@ -180,13 +182,44 @@ export function GraphQlLdControl(props) {
     }
   }
 
+  function makeQueryPermalink() {
+    let validQuery;
+    let tQuery = query.trim();
+    let tContext = context.trim();
+    let tEndpoint = endpoint.trim();
+
+    // Allow bookmarks to queries which may not execute successfully.
+    validQuery = tQuery && tContext && tEndpoint;
+
+    // Only allow bookmarks to queries which have executed successfully.
+    // validQuery = tQuery && tContext && tEndpoint && queryResult;
+
+    let permalink = new URL(props.pageUrl);
+    permalink.search = '';
+
+    if (validQuery) {
+      permalink.search += `endpoint=${encodeURIComponent(tEndpoint)}`;
+      permalink.search += `&format=${encodeURIComponent(outputFormat)}`;
+      permalink.search += `&query=${encodeURIComponent(tQuery)}`;
+      permalink.search += `&context=${encodeURIComponent(tContext)}`;
+    }
+    return permalink.href;
+  }
+
   // If the page URL specifies a query then execute it on page load.
   // Note: useEffect(..., []) is equivalent to componentDidMount
   useEffect(() => {
     if (qsEndpoint && qsQuery && qsContext && !queryResult)
-    execQuery();
+      execQuery();
     // eslint-disable-next-line
   }, []);
+
+  // Only generate a query permalink once the states on which it depends
+  // have been updated (asynchronously). To ensure this is the case, we 
+  // use useLayoutEffect.
+  useLayoutEffect(() => setQueryPermalink(makeQueryPermalink()),
+    // queryPermalink and makeQueryPermalink purposely omitted from the dependency array.
+    [queryResult, query, context, endpoint, outputFormat]); 
 
   return (
     <>
@@ -212,7 +245,10 @@ export function GraphQlLdControl(props) {
         </div>
         <Button onClick={() => execQuery()}>Execute</Button> &nbsp;
         <Button onClick={() => clearQueryResult()}>Clear</Button> &nbsp;
-        <Button onClick={() => resetDefaults()}>Defaults</Button>
+        <Button onClick={() => resetDefaults()}>Defaults</Button>&nbsp;
+        <a title="Query bookmark" href={queryPermalink} onClick={e => e.preventDefault()}>
+          <span className="oi oi-link-intact" style={{marginLeft: "5px", color: "white"}}></span>
+        </a>
         <Row style={{ marginBottom: "5px" }}>
           <Col>
             <Form.Group>

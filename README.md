@@ -3,10 +3,15 @@
 A simple test application for exercising the GraphQL to SPARQL bridge
 [SPARQL Endpoint for GraphQL-LD](https://github.com/rubensworks/graphql-ld-sparqlendpoint.js)
 
-## See also
+## See Also
 
 * branch [develop](https://github.com/OpenLinkSoftware/Grappa/tree/develop) (build from this branch, rather than `master`)
 * [GraphQL-LD: Linked Data Querying with GraphQL](https://comunica.github.io/Article-ISWC2018-Demo-GraphQlLD/)
+
+## Demo Instance
+A demo instance of Grappa is available at
+<http://ods-qa.openlinksw.com/grappa/>.
+It includes a preconfigured GraphQL query which executes against a DBpedia SPARQL endpoint.
 
 ## Overview
 

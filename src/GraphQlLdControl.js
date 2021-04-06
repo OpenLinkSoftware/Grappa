@@ -31,11 +31,11 @@ const defaultQuery = `
 `.trim();
 
 const outputFormats = [
-  { label: "Tree", value: "fmt_tree" },
-  { label: "JSON (Compact)", value: "fmt_json" },
   { label: "JSON (Formatted)", value: "fmt_json_formatted" },
+  { label: "JSON (Compact)", value: "fmt_json" },
+  { label: "Tree", value: "fmt_tree" },
 ];
-const defaultOutputFormat = "fmt_tree"
+const defaultOutputFormat = "fmt_json_formatted"
 
 // ------------------------------------------------------------------
 
